@@ -32,7 +32,6 @@
  */
 
 #include <sys/cdefs.h>
-#include "freebsd.h"
 __FBSDID("$FreeBSD$");
 
 #include <sys/stat.h>
@@ -68,7 +67,11 @@ const char	*errstr[] = {
 
 /* Flags passed to regcomp() and regexec() */
 int		 cflags = REG_NOSUB | REG_NEWLINE;
+#ifdef REG_STARTEND
 int		 eflags = REG_STARTEND;
+#else
+int		 eflags = 0;
+#endif
 
 /* XXX TODO: Get rid of this flag.
  * matchall is a gross hack that means that an empty pattern was passed to us.

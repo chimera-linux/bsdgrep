@@ -14,5 +14,3 @@ do
 	echo "$f"
 	curl -s "https://raw.githubusercontent.com/freebsd/freebsd-src/main/usr.bin/grep/$f" > "$f"
 done
-
-sed -i '/^__FBSDID/i #include "freebsd.h"' *.c

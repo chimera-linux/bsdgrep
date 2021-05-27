@@ -1,5 +1,6 @@
 CC?=cc
-CFLAGS+=-std=c99 -pedantic -Wall -O2
+CFLAGS+=-std=c99 -Wall -O2 -I.
+LDFLAGS+=-lfts
 PREFIX?=/usr/local
 
 .PHONY: clean

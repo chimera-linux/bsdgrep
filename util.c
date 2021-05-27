@@ -33,7 +33,6 @@
  */
 
 #include <sys/cdefs.h>
-#include "freebsd.h"
 __FBSDID("$FreeBSD$");
 
 #include <sys/stat.h>
@@ -514,15 +513,28 @@ procline(struct parsec *pc)
 			leflags |= REG_NOTBOL;
 		/* Loop to compare with all the patterns */
 		for (i = 0; i < patterns; i++) {
+#ifndef REG_STARTEND
+			char *buf = malloc(pc->ln.len - st + 1);
+			memcpy(buf, pc->ln.dat + st, pc->ln.len - st);
+			buf[pc->ln.len - st] = '\0';
+#else
 			pmatch.rm_so = st;
 			pmatch.rm_eo = pc->ln.len;
+#endif
 #ifdef WITH_INTERNAL_NOSPEC
 			if (grepbehave == GREP_FIXED)
 				r = litexec(&pattern[i], pc->ln.dat, 1, &pmatch);
 			else
 #endif
+#ifndef REG_STARTEND
+			r = regexec(&r_pattern[i], buf, 1, &pmatch, leflags);
+			free(buf);
+			pmatch.rm_so += st;
+			pmatch.rm_eo += st;
+#else
 			r = regexec(&r_pattern[i], pc->ln.dat, 1, &pmatch,
 			    leflags);
+#endif
 			if (r != 0)
 				continue;
 			/* Check for full match */
