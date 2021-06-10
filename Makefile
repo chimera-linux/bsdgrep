@@ -1,22 +1,22 @@
-CC?=cc
-CFLAGS+=-std=c99 -Wall -O2 -I.
-LDFLAGS+=-lfts
-PREFIX?=/usr/local
+CC     ?= cc
+CFLAGS ?= -O2
+PREFIX ?= /usr/local
+EXTRA_CFLAGS = -std=c99 -Wall -I. -D_GNU_SOURCE=1
 
 .PHONY: clean
 
 all:
-	${CC} ${CFLAGS} ${LDFLAGS} -D_GNU_SOURCE=1 -o grep *.c
+	$(CC) $(CFLAGS) -lfts $(EXTRA_CFLAGS) -o grep *.c
 
 clean:
 	rm -f grep
 
 install:
-	install -Dm755 grep     ${DESTDIR}${PREFIX}/bin/grep
-	install -Dm755 zgrep.sh ${DESTDIR}${PREFIX}/bin/zgrep
+	install -Dm755 grep     $(DESTDIR)$(PREFIX)/bin/grep
+	install -Dm755 zgrep.sh $(DESTDIR)$(PREFIX)/bin/zgrep
 
-	install -Dm644 grep.1 ${DESTDIR}${PREFIX}/share/man/man1/grep.1
-	install -Dm644 zgrep.1 ${DESTDIR}${PREFIX}/share/man/man1/zgrep.1
+	install -Dm644 grep.1 $(DESTDIR)$(PREFIX)/share/man/man1/grep.1
+	install -Dm644 zgrep.1 $(DESTDIR)$(PREFIX)/share/man/man1/zgrep.1
 
 	cd ${DESTDIR}${PREFIX}/bin && ( \
 		ln -sf grep  egrep     ;\
