@@ -450,6 +450,31 @@ litexec(const struct pat *pat, const char *string, size_t nmatch,
 
 #define iswword(x)	(iswalnum((x)) || (x) == L'_')
 
+#ifndef REG_STARTEND
+static int regexec_startend(
+    const regex_t *restrict preg, const char *restrict str, size_t nmatch,
+    regmatch_t pmatch[restrict], int eflags
+) {
+	regoff_t so = pmatch[0].rm_so;
+	regoff_t eo = pmatch[0].rm_eo;
+	char *buf = malloc(eo - so + 1);
+	memcpy(buf, str + pmatch[0].rm_so, eo - so);
+	buf[eo - so] = '\0';
+	int ret = regexec(preg, buf, nmatch, pmatch, eflags);
+	pmatch[0].rm_so += so;
+	pmatch[0].rm_eo += so;
+	free(buf);
+	return ret;
+}
+#else
+static int regexec_startend(
+    const regex_t *restrict preg, const char *restrict str, size_t nmatch,
+    regmatch_t pmatch[restrict], int eflags
+) {
+	return regexec(preg, str, nmatch, pmatch, eflags);
+}
+#endif
+
 /*
  * Processes a line comparing it with the specified patterns.  Each pattern
  * is looped to be compared along with the full string, saving each and every
@@ -513,28 +538,15 @@ procline(struct parsec *pc)
 			leflags |= REG_NOTBOL;
 		/* Loop to compare with all the patterns */
 		for (i = 0; i < patterns; i++) {
-#ifndef REG_STARTEND
-			char *buf = malloc(pc->ln.len - st + 1);
-			memcpy(buf, pc->ln.dat + st, pc->ln.len - st);
-			buf[pc->ln.len - st] = '\0';
-#else
 			pmatch.rm_so = st;
 			pmatch.rm_eo = pc->ln.len;
-#endif
 #ifdef WITH_INTERNAL_NOSPEC
 			if (grepbehave == GREP_FIXED)
 				r = litexec(&pattern[i], pc->ln.dat, 1, &pmatch);
 			else
 #endif
-#ifndef REG_STARTEND
-			r = regexec(&r_pattern[i], buf, 1, &pmatch, leflags);
-			free(buf);
-			pmatch.rm_so += st;
-			pmatch.rm_eo += st;
-#else
-			r = regexec(&r_pattern[i], pc->ln.dat, 1, &pmatch,
+			r = regexec_startend(&r_pattern[i], pc->ln.dat, 1, &pmatch,
 			    leflags);
-#endif
 			if (r != 0)
 				continue;
 			/* Check for full match */
