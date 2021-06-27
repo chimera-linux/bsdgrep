@@ -12,11 +12,13 @@ clean:
 	rm -f grep
 
 install:
-	install -Dm755 grep     $(DESTDIR)$(PREFIX)/bin/grep
-	install -Dm755 zgrep.sh $(DESTDIR)$(PREFIX)/bin/zgrep
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m755 grep     $(DESTDIR)$(PREFIX)/bin/grep
+	install -m755 zgrep.sh $(DESTDIR)$(PREFIX)/bin/zgrep
 
-	install -Dm644 grep.1 $(DESTDIR)$(PREFIX)/share/man/man1/grep.1
-	install -Dm644 zgrep.1 $(DESTDIR)$(PREFIX)/share/man/man1/zgrep.1
+	install -d $(DESTDIR)$(PREFIX)/share/man/man1
+	install -m644 grep.1 $(DESTDIR)$(PREFIX)/share/man/man1/grep.1
+	install -m644 zgrep.1 $(DESTDIR)$(PREFIX)/share/man/man1/zgrep.1
 
 	cd ${DESTDIR}${PREFIX}/bin && ( \
 		ln -sf grep  egrep     ;\
