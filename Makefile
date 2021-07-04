@@ -6,7 +6,7 @@ EXTRA_CFLAGS = -std=c99 -Wall -I. -D_GNU_SOURCE=1
 .PHONY: clean
 
 all:
-	$(CC) $(CFLAGS) -lfts $(EXTRA_CFLAGS) -o grep *.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -lfts $(EXTRA_CFLAGS) -o grep *.c
 
 clean:
 	rm -f grep
